@@ -11,18 +11,18 @@ and the step-by-step instructions for building your assigned service.
 
 ## 1. Current Status
 
-| Component | Status | Owner | Port |
-|---|---|---|---|
-| Service Registry (Eureka) | ✅ Done | Member 1 | 8761 |
-| Config Server | ✅ Done | Member 1 | 8888 |
-| Docker Compose (MySQL x5 + RabbitMQ) | ✅ Done | Member 1 | — |
-| API Gateway | 🔲 To build | Member 1 | 8080 |
-| User Service | ✅ Done | Member 2 | 8081 |
-| Movie Service | 🔲 To build | Member 3 | 8082 |
-| Theater Service | 🔲 To build | Member 4 | 8083 |
-| Booking Service | ✅ Done | Member 5 | 8084 |
-| Payment Service | ✅ Done | Member 5 | 8085 |
-| Notification Service | 🔲 To build | Member 1 | 8086 |
+| Component                            | Status      | Owner    | Port |
+| ------------------------------------ | ----------- | -------- | ---- |
+| Service Registry (Eureka)            | ✅ Done     | Member 1 | 8761 |
+| Config Server                        | ✅ Done     | Member 1 | 8888 |
+| Docker Compose (MySQL x5 + RabbitMQ) | ✅ Done     | Member 1 | —    |
+| API Gateway                          | 🔲 To build | Member 1 | 8080 |
+| User Service                         | ✅ Done     | Member 2 | 8081 |
+| Movie Service                        | ✅ Done     | Member 3 | 8082 |
+| Theater Service                      | ✅ Done     | Member 4 | 8083 |
+| Booking Service                      | ✅ Done     | Member 5 | 8084 |
+| Payment Service                      | ✅ Done     | Member 5 | 8085 |
+| Notification Service                 | 🔲 To build | Member 1 | 8086 |
 
 The infra layer (registry, config server, Docker) is already running and pushed to `main`.
 **Pull `main` before starting your service.**
