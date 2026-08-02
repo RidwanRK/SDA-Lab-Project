@@ -19,7 +19,7 @@ and the step-by-step instructions for building your assigned service.
 | API Gateway                          | 🔲 To build | Member 1 | 8080 |
 | User Service                         | 🔲 To build | Member 2 | 8081 |
 | Movie Service                        | 🔲 To build | Member 3 | 8082 |
-| Theater Service                      | 🔲 To build | Member 4 | 8083 |
+| Theater Service                      | ✅ Done     | Member 4 | 8083 |
 | Booking Service                      | 🔲 To build | Member 5 | 8084 |
 | Payment Service                      | 🔲 To build | Member 5 | 8085 |
 | Notification Service                 | 🔲 To build | Member 1 | 8086 |
