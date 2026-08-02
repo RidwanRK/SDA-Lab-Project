@@ -11,18 +11,18 @@ and the step-by-step instructions for building your assigned service.
 
 ## 1. Current Status
 
-| Component | Status | Owner | Port |
-|---|---|---|---|
-| Service Registry (Eureka) | ✅ Done | Member 1 | 8761 |
-| Config Server | ✅ Done | Member 1 | 8888 |
-| Docker Compose (MySQL x5 + RabbitMQ) | ✅ Done | Member 1 | — |
-| API Gateway | 🔲 To build | Member 1 | 8080 |
-| User Service | 🔲 To build | Member 2 | 8081 |
-| Movie Service | 🔲 To build | Member 3 | 8082 |
-| Theater Service | 🔲 To build | Member 4 | 8083 |
-| Booking Service | 🔲 To build | Member 5 | 8084 |
-| Payment Service | 🔲 To build | Member 5 | 8085 |
-| Notification Service | 🔲 To build | Member 1 | 8086 |
+| Component                            | Status      | Owner    | Port |
+| ------------------------------------ | ----------- | -------- | ---- |
+| Service Registry (Eureka)            | ✅ Done     | Member 1 | 8761 |
+| Config Server                        | ✅ Done     | Member 1 | 8888 |
+| Docker Compose (MySQL x5 + RabbitMQ) | ✅ Done     | Member 1 | —    |
+| API Gateway                          | 🔲 To build | Member 1 | 8080 |
+| User Service                         | 🔲 To build | Member 2 | 8081 |
+| Movie Service                        | 🔲 To build | Member 3 | 8082 |
+| Theater Service                      | 🔲 To build | Member 4 | 8083 |
+| Booking Service                      | 🔲 To build | Member 5 | 8084 |
+| Payment Service                      | 🔲 To build | Member 5 | 8085 |
+| Notification Service                 | 🔲 To build | Member 1 | 8086 |
 
 The infra layer (registry, config server, Docker) is already running and pushed to `main`.
 **Pull `main` before starting your service.**
@@ -33,13 +33,13 @@ The infra layer (registry, config server, Docker) is already running and pushed 
 
 > Fill in real names next to each Member number and keep this table updated.
 
-| Member | Name | Owns | Notes |
-|---|---|---|---|
-| **Member 1** | _______ | API Gateway + Notification Service *(+ infra already built)* | Gateway routes to all 6 services; Notification just listens for `payment.completed` and logs/sends confirmation |
-| **Member 2** | _______ | User Service | Auth, JWT issuance, profile, roles (CUSTOMER/ADMIN) |
-| **Member 3** | _______ | Movie Service | Movie catalog, genres, cast, showtimes |
-| **Member 4** | _______ | Theater Service | Theaters, screens, seat layout, seat categories |
-| **Member 5** | _______ | Booking Service + Payment Service | Booking calls Movie + Theater via Feign, then publishes `booking.confirmed`; Payment consumes it and publishes `payment.completed` |
+| Member       | Name           | Owns                                                         | Notes                                                                                                                              |
+| ------------ | -------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Member 1** | **\_\_\_**     | API Gateway + Notification Service _(+ infra already built)_ | Gateway routes to all 6 services; Notification just listens for `payment.completed` and logs/sends confirmation                    |
+| **Member 2** | **\_Siam\_\_** | User Service                                                 | Auth, JWT issuance, profile, roles (CUSTOMER/ADMIN)                                                                                |
+| **Member 3** | **\_\_\_**     | Movie Service                                                | Movie catalog, genres, cast, showtimes                                                                                             |
+| **Member 4** | **\_\_\_**     | Theater Service                                              | Theaters, screens, seat layout, seat categories                                                                                    |
+| **Member 5** | **\_\_\_**     | Booking Service + Payment Service                            | Booking calls Movie + Theater via Feign, then publishes `booking.confirmed`; Payment consumes it and publishes `payment.completed` |
 
 **Why this split:** Booking and Payment are tightly coupled (one triggers the other via RabbitMQ),
 so one person owning both avoids cross-person blocking on that event chain. Member 1 balances
@@ -51,31 +51,34 @@ Notification is the simplest service).
 ## 3. Fixed Conventions (do not deviate — this is what keeps services compatible)
 
 ### Ports
-| Service | Port |
-|---|---|
+
+| Service                   | Port |
+| ------------------------- | ---- |
 | service-registry (Eureka) | 8761 |
-| config-server | 8888 |
-| api-gateway | 8080 |
-| user-service | 8081 |
-| movie-service | 8082 |
-| theater-service | 8083 |
-| booking-service | 8084 |
-| payment-service | 8085 |
-| notification-service | 8086 |
+| config-server             | 8888 |
+| api-gateway               | 8080 |
+| user-service              | 8081 |
+| movie-service             | 8082 |
+| theater-service           | 8083 |
+| booking-service           | 8084 |
+| payment-service           | 8085 |
+| notification-service      | 8086 |
 
 ### Databases (MySQL, via Docker Compose)
-| Service | DB Name | Host Port |
-|---|---|---|
-| user-service | user_db | 3307 |
-| movie-service | movie_db | 3308 |
-| theater-service | theater_db | 3309 |
-| booking-service | booking_db | 3310 |
-| payment-service | payment_db | 3311 |
+
+| Service              | DB Name         | Host Port                                |
+| -------------------- | --------------- | ---------------------------------------- |
+| user-service         | user_db         | 3307                                     |
+| movie-service        | movie_db        | 3308                                     |
+| theater-service      | theater_db      | 3309                                     |
+| booking-service      | booking_db      | 3310                                     |
+| payment-service      | payment_db      | 3311                                     |
 | notification-service | notification_db | reuse 3311 or log-only (Member 1's call) |
 
 MySQL credentials (local dev): `root` / `root`
 
 ### RabbitMQ
+
 - Host: `localhost:5672`
 - Management UI: `http://localhost:15672` (login: `guest` / `guest`)
 - Events used in this project:
@@ -83,6 +86,7 @@ MySQL credentials (local dev): `root` / `root`
   - `payment.completed` — published by Payment Service, consumed by Notification Service
 
 ### Java / Package Naming
+
 - Java 17+, Spring Boot 3.x, Maven
 - Base package: `com.cinebook.<servicename>` (e.g. `com.cinebook.userservice`)
 - Layered structure inside each service:
@@ -98,6 +102,7 @@ MySQL credentials (local dev): `root` / `root`
   ```
 
 ### Every service must have
+
 - `@EnableDiscoveryClient` (or it's implied by the Eureka client dependency) so it registers with Eureka
 - `spring.config.import: optional:configserver:http://localhost:8888` in `application.yml`
 - `eureka.client.service-url.defaultZone: http://localhost:8761/eureka`
@@ -124,6 +129,7 @@ mvn spring-boot:run
 ```
 
 **Verify before doing anything else:**
+
 - `http://localhost:8761` → Eureka dashboard loads
 - `http://localhost:8888/user-service/default` → returns JSON (not an error)
 - `http://localhost:15672` → RabbitMQ management UI loads
@@ -138,29 +144,32 @@ If any of these fail, fix it before building your service — don't build on a b
 Each of the 6 services follows the same pattern. Do this inside your assigned service folder.
 
 ### Step 1 — Generate the project
+
 Go to [start.spring.io](https://start.spring.io):
+
 - Maven, Java 17, Spring Boot 3.x
 - Group: `com.cinebook`, Artifact: `<your-service-name>`
 - Dependencies (pick based on your service — see table below)
 
-| Dependency | user | movie | theater | booking | payment | notification |
-|---|---|---|---|---|---|---|
-| Spring Web | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Spring Data JPA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (or skip if log-only) |
-| MySQL Driver | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (or skip) |
-| Eureka Client | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Config Client | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Validation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Lombok | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Spring Boot Actuator | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Springdoc OpenAPI (add manually to pom.xml) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Spring Security + JJWT | ✅ only | | | | | |
-| OpenFeign | | | | ✅ | | |
-| Spring for RabbitMQ (amqp) | | | | ✅ | ✅ | ✅ |
+| Dependency                                  | user    | movie | theater | booking | payment | notification             |
+| ------------------------------------------- | ------- | ----- | ------- | ------- | ------- | ------------------------ |
+| Spring Web                                  | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Spring Data JPA                             | ✅      | ✅    | ✅      | ✅      | ✅      | ✅ (or skip if log-only) |
+| MySQL Driver                                | ✅      | ✅    | ✅      | ✅      | ✅      | ✅ (or skip)             |
+| Eureka Client                               | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Config Client                               | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Validation                                  | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Lombok                                      | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Spring Boot Actuator                        | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Springdoc OpenAPI (add manually to pom.xml) | ✅      | ✅    | ✅      | ✅      | ✅      | ✅                       |
+| Spring Security + JJWT                      | ✅ only |       |         |         |         |                          |
+| OpenFeign                                   |         |       |         | ✅      |         |                          |
+| Spring for RabbitMQ (amqp)                  |         |       |         | ✅      | ✅      | ✅                       |
 
 Unzip the download directly into your service folder (e.g. `booking-service/`), replacing the empty folder contents.
 
 ### Step 2 — application.yml
+
 Use the port/DB values from Section 3. Example (`booking-service`):
 
 ```yaml
@@ -190,6 +199,7 @@ eureka:
 ```
 
 ### Step 3 — Build your layers
+
 - **model/** — JPA entities for your domain (e.g. Booking Service: `Booking`, `Ticket`)
 - **repository/** — `JpaRepository<Entity, Long>` interfaces
 - **service/** — interface + impl with your business logic
@@ -199,21 +209,26 @@ eureka:
 - **event/** — (booking/payment/notification only) RabbitMQ publisher/listener classes
 
 ### Step 4 — Run and verify
+
 ```bash
 mvn spring-boot:run
 ```
+
 Check:
+
 - Your service shows up as `UP` on the Eureka dashboard (`http://localhost:8761`)
 - `http://localhost:<your-port>/swagger-ui.html` loads and lists your endpoints
 - `http://localhost:<your-port>/actuator/health` returns `{"status":"UP"}`
 
 ### Step 5 — Commit
+
 ```bash
 git checkout -b feature/<your-service-name>
 git add .
 git commit -m "Implement <your-service-name>: <short summary>"
 git push -u origin feature/<your-service-name>
 ```
+
 Open a PR into `main` when ready. Don't push directly to `main`.
 
 ---
@@ -270,6 +285,7 @@ to individual service ports, once the Gateway is up.
 ## 8. Definition of Done (per service)
 
 Before marking your service "done" for this phase:
+
 - [ ] Registers with Eureka (visible on dashboard)
 - [ ] Pulls config from Config Server without errors
 - [ ] Connects to its own MySQL DB, tables auto-created
