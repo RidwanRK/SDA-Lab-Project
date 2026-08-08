@@ -16,13 +16,13 @@ and the step-by-step instructions for building your assigned service.
 | Service Registry (Eureka)            | ✅ Done     | Member 1 | 8761 |
 | Config Server                        | ✅ Done     | Member 1 | 8888 |
 | Docker Compose (MySQL x5 + RabbitMQ) | ✅ Done     | Member 1 | —    |
-| API Gateway                          | 🔲 To build | Member 1 | 8080 |
+| API Gateway                          | ✅ Done     | Member 1 | 8080 |
 | User Service                         | ✅ Done     | Member 2 | 8081 |
 | Movie Service                        | ✅ Done     | Member 3 | 8082 |
 | Theater Service                      | ✅ Done     | Member 4 | 8083 |
 | Booking Service                      | ✅ Done     | Member 5 | 8084 |
 | Payment Service                      | ✅ Done     | Member 5 | 8085 |
-| Notification Service                 | 🔲 To build | Member 1 | 8086 |
+| Notification Service                 | ✅ Done     | Member 1 | 8086 |
 
 The infra layer (registry, config server, Docker) is already running and pushed to `main`.
 **Pull `main` before starting your service.**
@@ -71,7 +71,7 @@ Notification is the simplest service).
 | theater-service | theater_db | 3309 |
 | booking-service | booking_db | 3310 |
 | payment-service | payment_db | 3311 |
-| notification-service | notification_db | reuse 3311 or log-only (Member 1's call) |
+| notification-service | notification_db | 3312 |
 
 MySQL credentials (local dev): `root` / `root`
 
@@ -235,39 +235,97 @@ Open a PR into `main` when ready. Don't push directly to `main`.
   **before** building your publisher/consumer, so both sides match. Document the agreed
   shape in this README under a new "Event Contracts" section once decided.
 
+### Event Contracts
+
+Both events go through the `cinebook.events` direct exchange, routed by a key equal to the
+queue name (e.g. routing key `payment.completed` → queue `payment.completed`).
+
+**`booking.confirmed`** — published by Booking Service, consumed by Payment Service:
+```json
+{
+  "bookingId": 1,
+  "bookingReference": "string",
+  "customerName": "string",
+  "customerEmail": "string",
+  "movieId": 1,
+  "movieTitle": "string",
+  "theaterId": 1,
+  "theaterName": "string",
+  "showTime": "2026-08-09T20:00:00",
+  "seatCount": 2,
+  "amount": 25.50
+}
+```
+
+**`payment.completed`** — published by Payment Service, consumed by Notification Service:
+```json
+{
+  "paymentId": 1,
+  "bookingId": 1,
+  "bookingReference": "string",
+  "amount": 25.50,
+  "transactionReference": "string",
+  "status": "COMPLETED",
+  "processedAt": "2026-08-08T19:52:13.565584"
+}
+```
+Note: this event does **not** carry `customerEmail` — Notification Service currently derives a
+placeholder recipient from `bookingReference` alone. If real email delivery is added later,
+extend this event with `customerEmail` (coordinate with Payment Service's owner first).
+
+**Cross-service deserialization gotcha:** Spring AMQP's `Jackson2JsonMessageConverter` stamps
+messages with a `__TypeId__` header containing the *publisher's* fully-qualified class name
+(e.g. `com.cinebook.paymentservice.dto.PaymentCompletedEvent`). By default the *consumer* trusts
+that header and tries to load that exact class — which doesn't exist on the consumer's classpath,
+since each service keeps its own copy of the DTO under its own package. Notification Service
+works around this by setting `Jackson2JavaTypeMapper.TypePrecedence.INFERRED` on its converter
+bean (see `notification-service/.../config/RabbitConfig.java`), which makes it deserialize using
+the `@RabbitListener` method's declared parameter type instead of the header. Any new consumer
+of a cross-service event should do the same.
+
 ---
 
-## 7. API Gateway (Member 1)
+## 7. API Gateway (Member 1) — ✅ Done
 
-Routes needed (add to `api-gateway/application.yml` as each service comes online):
+Built on `spring-cloud-starter-gateway-server-webflux` (Spring Cloud Gateway 5.x split the
+old `spring-cloud-starter-gateway` into separate WebFlux/WebMvc starters, which also moved the
+route config under a `server.webflux` prefix — note this differs from older Gateway tutorials):
 
 ```yaml
 spring:
   cloud:
     gateway:
-      routes:
-        - id: user-service
-          uri: lb://USER-SERVICE
-          predicates: [Path=/api/users/**]
-        - id: movie-service
-          uri: lb://MOVIE-SERVICE
-          predicates: [Path=/api/movies/**]
-        - id: theater-service
-          uri: lb://THEATER-SERVICE
-          predicates: [Path=/api/theaters/**]
-        - id: booking-service
-          uri: lb://BOOKING-SERVICE
-          predicates: [Path=/api/bookings/**]
-        - id: payment-service
-          uri: lb://PAYMENT-SERVICE
-          predicates: [Path=/api/payments/**]
-        - id: notification-service
-          uri: lb://NOTIFICATION-SERVICE
-          predicates: [Path=/api/notifications/**]
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: lb://USER-SERVICE
+              predicates: [Path=/api/users/**]
+            - id: movie-service
+              uri: lb://MOVIE-SERVICE
+              predicates: [Path=/api/movies/**]
+            - id: theater-service
+              uri: lb://THEATER-SERVICE
+              predicates: [Path=/api/theaters/**]
+            - id: booking-service
+              uri: lb://BOOKING-SERVICE
+              predicates: [Path=/api/bookings/**]
+            - id: payment-service
+              uri: lb://PAYMENT-SERVICE
+              predicates: [Path=/api/payments/**]
+            - id: notification-service
+              uri: lb://NOTIFICATION-SERVICE
+              predicates: [Path=/api/notifications/**]
 ```
 
 All frontend/testing traffic should go through `http://localhost:8080/api/...`, not directly
-to individual service ports, once the Gateway is up.
+to individual service ports, once the Gateway is up. Global CORS (allow all origins/methods) is
+configured so a browser-based frontend can call the gateway directly.
+
+**Local dev note:** if a downstream service registers with Eureka using an unresolvable hostname
+(seen on this Hyper-V/WSL machine as `*.mshome.net`, which the Gateway's DNS resolver can't
+resolve, breaking `lb://` routing with a 500), add `eureka.instance.prefer-ip-address: true` to
+that service's `application.yml` so it registers with its IP instead.
 
 ---
 
