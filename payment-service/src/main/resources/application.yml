@@ -36,3 +36,4 @@ eureka:
     prefer-ip-address: true
 server:
   port: 8085
+  forward-headers-strategy: framework

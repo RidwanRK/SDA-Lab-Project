@@ -2,6 +2,7 @@ package com.cinebook.movieservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,8 +12,9 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI movieServiceOpenAPI() {
         return new OpenAPI().info(new Info()
-                .title("CineBook - Movie Service API")
-                .description("Movie catalog: movies, genres, cast and showtimes")
-                .version("v1.0"));
+                        .title("CineBook - Movie Service API")
+                        .description("Movie catalog: movies, genres, cast and showtimes")
+                        .version("v1.0"))
+                .addServersItem(new Server().url("http://localhost:8080").description("Via API Gateway"));
     }
 }

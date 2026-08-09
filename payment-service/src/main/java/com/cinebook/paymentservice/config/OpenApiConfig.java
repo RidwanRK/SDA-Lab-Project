@@ -2,6 +2,7 @@ package com.cinebook.paymentservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,6 +15,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Payment Service API")
                         .version("1.0")
-                        .description("Handles payment processing for CineBook bookings"));
+                        .description("Handles payment processing for CineBook bookings"))
+                .addServersItem(new Server().url("http://localhost:8080").description("Via API Gateway"));
     }
 }
