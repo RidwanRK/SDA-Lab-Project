@@ -1,9 +1,11 @@
 package com.cinebook.movieservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +32,10 @@ public class MovieRequest {
     private Double rating;
 
     private String posterUrl;
+
+    @NotNull(message = "ticketPrice is required")
+    @Positive(message = "ticketPrice must be positive")
+    private BigDecimal ticketPrice;
 
     // genre names -- created on the fly if they don't exist yet
     @Builder.Default

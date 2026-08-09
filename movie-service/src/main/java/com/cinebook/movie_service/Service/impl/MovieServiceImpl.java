@@ -40,6 +40,7 @@ public class MovieServiceImpl implements MovieService {
                 .releaseDate(request.getReleaseDate())
                 .rating(request.getRating())
                 .posterUrl(request.getPosterUrl())
+                .ticketPrice(request.getTicketPrice())
                 .genres(resolveGenres(request.getGenres()))
                 .build();
 
@@ -77,6 +78,7 @@ public class MovieServiceImpl implements MovieService {
         movie.setReleaseDate(request.getReleaseDate());
         movie.setRating(request.getRating());
         movie.setPosterUrl(request.getPosterUrl());
+        movie.setTicketPrice(request.getTicketPrice());
         movie.setGenres(resolveGenres(request.getGenres()));
         return toResponse(movieRepository.save(movie));
     }
@@ -155,6 +157,7 @@ public class MovieServiceImpl implements MovieService {
                 .releaseDate(movie.getReleaseDate())
                 .rating(movie.getRating())
                 .posterUrl(movie.getPosterUrl())
+                .ticketPrice(movie.getTicketPrice())
                 .genres(movie.getGenres().stream()
                         .map(Genre::getName).collect(Collectors.toSet()))
                 .showtimes(movie.getShowtimes().stream()

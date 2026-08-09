@@ -2,6 +2,7 @@ package com.cinebook.movieservice.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,8 @@ public class MovieResponse {
     private LocalDate releaseDate;
     private Double rating;
     private String posterUrl;
+
+    private BigDecimal ticketPrice;
 
     @Builder.Default
     private Set<String> genres = new HashSet<>();
