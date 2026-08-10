@@ -115,6 +115,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ShowtimeDto getShowtimeById(Long showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new MovieNotFoundException("Showtime not found with id: " + showtimeId));
+        return toShowtimeDto(showtime);
+    }
+
+    @Override
     @Transactional
     public CastMemberDto addCastMember(Long movieId, CastMemberDto dto) {
         Movie movie = findMovieOrThrow(movieId);
@@ -167,6 +175,7 @@ public class MovieServiceImpl implements MovieService {
     private ShowtimeDto toShowtimeDto(Showtime s) {
         return ShowtimeDto.builder()
                 .id(s.getId())
+                .movieId(s.getMovie().getId())
                 .startTime(s.getStartTime())
                 .theaterId(s.getTheaterId())
                 .screenId(s.getScreenId())

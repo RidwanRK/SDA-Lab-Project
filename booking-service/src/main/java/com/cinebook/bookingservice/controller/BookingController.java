@@ -25,7 +25,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    @Operation(summary = "Create a new booking", description = "Validates movie/theater via Feign, saves the booking, and publishes a booking.confirmed event")
+    @Operation(summary = "Create a new booking", description = "Looks up the showtime (and its movie/theater/screen) via Feign, saves the booking, and publishes a booking.confirmed event")
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody CreateBookingRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.createBooking(request));

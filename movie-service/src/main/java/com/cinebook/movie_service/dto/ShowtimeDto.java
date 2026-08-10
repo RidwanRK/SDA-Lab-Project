@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class ShowtimeDto {
 
     private Long id;
+    private Long movieId;
     private LocalDateTime startTime;
     private Long theaterId;
     private Long screenId;

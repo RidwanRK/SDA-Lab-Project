@@ -23,5 +23,7 @@ public interface MovieService {
 
     List<ShowtimeDto> getShowtimes(Long movieId);
 
+    ShowtimeDto getShowtimeById(Long showtimeId);
+
     CastMemberDto addCastMember(Long movieId, CastMemberDto castDto);
 }

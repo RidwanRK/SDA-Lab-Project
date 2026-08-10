@@ -4,6 +4,8 @@ import com.cinebook.bookingservice.config.RabbitConfig;
 import com.cinebook.bookingservice.dto.BookingResponse;
 import com.cinebook.bookingservice.dto.CreateBookingRequest;
 import com.cinebook.bookingservice.dto.MovieInfoResponse;
+import com.cinebook.bookingservice.dto.ScreenInfoResponse;
+import com.cinebook.bookingservice.dto.ShowtimeInfoResponse;
 import com.cinebook.bookingservice.dto.TheaterInfoResponse;
 import com.cinebook.bookingservice.event.BookingConfirmedEvent;
 import com.cinebook.bookingservice.exception.BookingNotFoundException;
@@ -36,11 +38,13 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional
 	public BookingResponse createBooking(CreateBookingRequest request) {
-		MovieInfoResponse movie = fetchMovie(request.movieId());
-		TheaterInfoResponse theater = fetchTheater(request.theaterId());
-		validateSeatAvailability(theater, request.seatCount());
+		ShowtimeInfoResponse showtime = fetchShowtime(request.showtimeId());
+		MovieInfoResponse movie = fetchMovie(showtime.movieId());
+		TheaterInfoResponse theater = fetchTheater(showtime.theaterId());
+		ScreenInfoResponse screen = fetchScreen(showtime.screenId());
+		validateSeatAvailability(screen, request.seatCount());
 
-		BigDecimal amount = movie.ticketPrice()
+		BigDecimal amount = showtime.price()
 				.multiply(BigDecimal.valueOf(request.seatCount()))
 				.setScale(2, RoundingMode.HALF_UP);
 
@@ -52,7 +56,7 @@ public class BookingServiceImpl implements BookingService {
 				.movieTitle(movie.title())
 				.theaterId(theater.id())
 				.theaterName(theater.name())
-				.showTime(request.showTime())
+				.showTime(showtime.startTime())
 				.seatCount(request.seatCount())
 				.amount(amount)
 				.status(BookingStatus.CONFIRMED)
@@ -83,6 +87,15 @@ public class BookingServiceImpl implements BookingService {
 				.orElseThrow(() -> new BookingNotFoundException("Booking not found for reference: " + bookingReference));
 	}
 
+	private ShowtimeInfoResponse fetchShowtime(Long showtimeId) {
+		try {
+			return movieClient.getShowtimeById(showtimeId);
+		}
+		catch (FeignException exception) {
+			throw new ExternalServiceException("Unable to load showtime " + showtimeId + ": " + exception.getMessage());
+		}
+	}
+
 	private MovieInfoResponse fetchMovie(Long movieId) {
 		try {
 			return movieClient.getMovieById(movieId);
@@ -101,9 +114,22 @@ public class BookingServiceImpl implements BookingService {
 		}
 	}
 
-	private void validateSeatAvailability(TheaterInfoResponse theater, Integer requestedSeats) {
-		if (theater.availableSeats() == null || theater.availableSeats() < requestedSeats) {
-			throw new ExternalServiceException("Not enough seats available for theater " + theater.name());
+	private ScreenInfoResponse fetchScreen(Long screenId) {
+		try {
+			return theaterClient.getScreenById(screenId);
+		}
+		catch (FeignException exception) {
+			throw new ExternalServiceException("Unable to load screen " + screenId + ": " + exception.getMessage());
+		}
+	}
+
+	// Checks the screen's physical capacity, not real-time remaining availability --
+	// this project doesn't track individual seat reservations per showtime yet.
+	private void validateSeatAvailability(ScreenInfoResponse screen, Integer requestedSeats) {
+		int capacity = screen.totalRows() * screen.seatsPerRow();
+		if (requestedSeats > capacity) {
+			throw new ExternalServiceException(
+					"Requested " + requestedSeats + " seats exceeds screen capacity of " + capacity);
 		}
 	}
 

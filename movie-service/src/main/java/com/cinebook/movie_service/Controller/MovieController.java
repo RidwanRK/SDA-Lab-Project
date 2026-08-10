@@ -70,6 +70,12 @@ public class MovieController {
         return movieService.getShowtimes(id);
     }
 
+    @GetMapping("/showtimes/{showtimeId}")
+    @Operation(summary = "Get a single showtime by id")
+    public ShowtimeDto getShowtimeById(@PathVariable Long showtimeId) {
+        return movieService.getShowtimeById(showtimeId);
+    }
+
     @PostMapping("/{id}/cast")
     @Operation(summary = "Add a cast member to a movie")
     public ResponseEntity<CastMemberDto> addCast(
