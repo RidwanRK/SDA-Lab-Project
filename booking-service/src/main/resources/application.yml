@@ -37,3 +37,6 @@ eureka:
 server:
   port: 8084
   forward-headers-strategy: framework
+app:
+  jwt:
+    secret: c2FtcGxlLWpzdy1zZWNyZXQtZm9yLWNpbmVib29rLXVzZXItc2VydmljZS0zMi1ieXRlcyEh

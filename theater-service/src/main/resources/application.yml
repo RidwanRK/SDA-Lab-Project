@@ -42,3 +42,7 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  jwt:
+    secret: c2FtcGxlLWpzdy1zZWNyZXQtZm9yLWNpbmVib29rLXVzZXItc2VydmljZS0zMi1ieXRlcyEh
