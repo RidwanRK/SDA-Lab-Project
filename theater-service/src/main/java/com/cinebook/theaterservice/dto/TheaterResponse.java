@@ -5,6 +5,7 @@ public record TheaterResponse(
 	String name,
 	String city,
 	String address,
-	boolean active
+	boolean active,
+	Integer availableSeats
 ) {
 }

@@ -3,6 +3,7 @@ package com.cinebook.movieservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ public class Movie {
     private Double rating;
 
     private String posterUrl;
+
+    private BigDecimal ticketPrice;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

@@ -10,6 +10,7 @@ import com.cinebook.theaterservice.dto.TheaterResponse;
 import com.cinebook.theaterservice.exception.ResourceAlreadyExistsException;
 import com.cinebook.theaterservice.exception.ResourceNotFoundException;
 import com.cinebook.theaterservice.model.Theater;
+import com.cinebook.theaterservice.repository.SeatRepository;
 import com.cinebook.theaterservice.repository.TheaterRepository;
 import com.cinebook.theaterservice.service.TheaterService;
 
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class TheaterServiceImpl implements TheaterService {
 
 	private final TheaterRepository theaterRepository;
+	private final SeatRepository seatRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -90,7 +92,8 @@ public class TheaterServiceImpl implements TheaterService {
 			theater.getName(),
 			theater.getCity(),
 			theater.getAddress(),
-			theater.isActive()
+			theater.isActive(),
+			(int) seatRepository.countActiveSeatsByTheaterId(theater.getId())
 		);
 	}
 }
