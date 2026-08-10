@@ -23,6 +23,7 @@ and the step-by-step instructions for building your assigned service.
 | Booking Service                      | ✅ Done     | Member 5 | 8084 |
 | Payment Service                      | ✅ Done     | Member 5 | 8085 |
 | Notification Service                 | ✅ Done     | Member 1 | 8086 |
+| Frontend (React + Vite)              | ✅ Done     | —        | 5173 |
 
 The infra layer (registry, config server, Docker) is already running and pushed to `main`.
 **Pull `main` before starting your service.**
@@ -349,3 +350,23 @@ Before marking your service "done" for this phase:
 - [ ] Names filled into Section 2 table
 - [ ] Event payload shapes agreed for `booking.confirmed` and `payment.completed`
 - [ ] Weekly check-in to confirm cross-service integration still works after each merge
+
+---
+
+## 10. Frontend
+
+A React + Vite UI lives in `frontend/`, talking only to the API Gateway
+(`http://localhost:8080`) — never to individual service ports. It covers
+public movie/theater browsing, customer login/booking, and a full admin
+dashboard (movies, theaters/screens/seats, users, and system-wide
+bookings/payments/notifications monitors) gated behind the `ADMIN` role.
+
+```bash
+cd frontend
+npm install
+npm run dev   # http://localhost:5173
+```
+
+Log in as the seeded admin (`admin` / `Admin123!`) to reach `/admin`. See
+`frontend/README.md` for the full breakdown of pages and which service each
+one calls.
